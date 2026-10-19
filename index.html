@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Overlooked Tax Provisions Finder</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1b1b1b}
+label{display:block;margin:.4rem 0}button{padding:.5rem 1rem;margin-top:1rem}
+.card{border:1px solid #bbb;border-radius:8px;padding:.8rem 1rem;margin:.8rem 0}
+.note{font-size:.9rem;color:#444}@media(prefers-color-scheme:dark){body{background:#141414;color:#eee}.note{color:#bbb}.card{border-color:#555}a{color:#8ab4ff}}
+</style></head><body>
+<h1>Overlooked Tax Provisions Finder</h1>
+<p class="note">Educational only, not tax advice. Check yes/no statements below. No dollar amounts or personal details are collected, and nothing is stored or sent anywhere.</p>
+<div id="qs"></div><button id="go">Find provisions to look into</button>
+<div id="out" aria-live="polite"></div>
+<script src="provisions.js"></script><script src="matcher.js"></script>
+<script>
+const {questions,provisions}=TAXDATA, qs=document.getElementById('qs'), out=document.getElementById('out');
+questions.forEach(q=>{const l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.id=q.key;l.append(c,' '+q.label);qs.append(l)});
+document.getElementById('go').onclick=()=>{
+  const a={};questions.forEach(q=>a[q.key]=document.getElementById(q.key).checked);
+  const hits=TAXMATCH.match(a,provisions);out.replaceChildren();
+  if(!hits.length){out.textContent='No provisions matched. Try checking any statements that apply.';return}
+  hits.forEach(p=>{const d=document.createElement('div');d.className='card';
+    const h=document.createElement('h3');h.textContent=p.name;
+    const w=document.createElement('p');w.textContent=p.why+' This may apply to you; confirm eligibility on the IRS page.';
+    const l=document.createElement('p');
+    [['IRS page',p.irs],['US Code',p.usc]].forEach(([t,u],i)=>{const x=document.createElement('a');x.href=u;x.textContent=t;x.target='_blank';x.rel='noopener';if(i)l.append(' · ');l.append(x)});
+    const v=document.createElement('p');v.className='note';v.textContent='Last verified: '+(p.lastVerified||'not yet verified');
+    d.append(h,w,l,v);out.append(d)});
+};
+</script></body></html>
